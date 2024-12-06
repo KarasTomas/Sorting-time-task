@@ -25,3 +25,39 @@ def selection_sort(data):
         # swap utilizing tuple packing and unpacking -> does not need a temporary variable
 
     return array
+
+
+def bubble_sort(data):
+
+    # copy the input data
+    array = data.copy()
+    size = len(array)
+
+    # iterate through the whole list / array
+    for pass_length in range(size):
+
+        # track of swapping
+        swapped = False
+
+        # iterate to compare elements in list / array
+        for element in range(size - pass_length - 1):
+
+            # compare two adjacent elements
+            # change order from ascending to descending by changing the sign
+            if array[element] > array[element + 1]:
+
+                # swap the elements
+                (array[element], array[element + 1]) = (
+                    array[element + 1],
+                    array[element],
+                )
+
+                # track the swap
+                swapped = True
+
+        # no swapping means the array is already sorted
+        # so no need for further comparison
+        if not swapped:
+            break
+
+    return array
