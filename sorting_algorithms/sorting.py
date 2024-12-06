@@ -2,7 +2,24 @@
 Sorting algorithms
 """
 
+import time
 
+
+# decorator for time measuring
+def calculate_time(func):
+
+    def inner(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        stop = time.time()
+
+        print(f"{func.__name__} elapsed time: { stop - start } s")
+        return result
+
+    return inner
+
+
+# @calculate_time
 def selection_sort(data):
 
     # copy the input data
@@ -27,6 +44,7 @@ def selection_sort(data):
     return array
 
 
+# @calculate_time
 def bubble_sort(data):
 
     # copy the input data
