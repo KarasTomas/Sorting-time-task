@@ -23,7 +23,11 @@ Expected time complexity of each sorting algorithm implemented:
 
 1. Clone the repository:
     ```sh
-    git clone
+    git clone https://github.com/KarasTomas/Sorting-time-task.git
     ```
 
 
+## Responsible pearson
+
+Tomáš Karas
+email: tomas.karas@fs.cvut.cz
