@@ -63,20 +63,17 @@ def bubble_sort(data):
     return array
 
 
-def merge_sort(data):
+def merge_sort(array):
 
     # check if input data have more than one element
-    size = len(data)
-    if size > 1:
+
+    if len(array) > 1:
 
         # splitting part
         ############################
 
-        # copy the input data
-        array = data.copy()
-
         # find middle pint and divide the array into two halves
-        mid = size // 2
+        mid = len(array) // 2
         left_half = array[:mid]
         right_half = array[mid:]
 
@@ -101,6 +98,8 @@ def merge_sort(data):
             else:
                 array[k] = right_half[j]
                 j += 1
+
+            k += 1
 
         # one of the halves is empty, so place the remaining elements in the merged array
         while i < len(left_half):
