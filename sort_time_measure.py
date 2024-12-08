@@ -5,31 +5,18 @@ import statistics
 import matplotlib.pyplot as plt
 import csv
 
-ARRAY_SIZE = [100, 200, 500, 1000, 2000, 5000, 10000]
-ALGORITHMS = ["Selection", "Bubble", "Merge", "Sorted()"]
 
-sorting_algorithms = {
-    "Selection": "selection_sort(array.copy())",
-    "Bubble": "bubble_sort(array.copy())",
-    "Merge": "merge_sort(array.copy())",
-    "Sorted()": "sorted(array.copy())",
-}
+def measure_time(algorithm, algorithm_stmt, array, n_repeats):
 
-
-def measure_time(
-    algorithm, array_length, number_range_min, number_range_max, repeat_times
-):
-    array = [
-        random.randint(number_range_min, number_range_max) for _ in range(array_length)
-    ]
-    stmt = sorting_algorithms[algorithm]
     repeat_times = timeit.repeat(
-        stmt=stmt, globals=globals(), number=1, repeat=repeat_times
+        stmt=algorithm_stmt, globals=globals(), number=1, repeat=n_repeats
     )
+
     mean_time = statistics.mean(repeat_times)
     std_dev_time = statistics.stdev(repeat_times)
+
     with open("sorting_time.csv", "a", encoding="utf-8") as f:
-        row = [algorithm, array_length, mean_time, std_dev_time, repeat_times]
+        row = [algorithm, len(array), mean_time, std_dev_time, n_repeats]
         f.write(",".join(map(str, row)) + "\n")
 
     return mean_time, std_dev_time
@@ -37,12 +24,23 @@ def measure_time(
 
 def compare_algorithms(
     algoritms,
-    length_of_arrays,
-    number_range_min=0,
-    number_range_max=1000,
-    repeat_times=5,
+    array,
+    n_repeats=5,
 ):
-    with open("sorting_time.csv", "w", encoding="utf-8") as f:
+    for algorithm, stmt in algoritms.items():
+        mean_time, std_dev_time = measure_time(
+            algorithm,
+            stmt,
+            array,
+            n_repeats,
+        )
+        print(
+            f"Algorithm: {algorithm}, Array size: {len(array)}, Mean time: {mean_time}, Standard deviation: {std_dev_time}"
+        )
+
+
+def prepare_csv_file(name="sorting_time.csv"):
+    with open(name, "w", encoding="utf-8") as f:
         header = [
             "Algorithm",
             "Array Size",
@@ -52,35 +50,24 @@ def compare_algorithms(
         ]
         f.write(",".join(header) + "\n")
 
-    for algorithm in algoritms:
-        for array_length in length_of_arrays:
-            mean_time, std_dev_time = measure_time(
-                algorithm,
-                array_length,
-                number_range_min,
-                number_range_max,
-                repeat_times,
-            )
-            print(
-                f"Algorithm: {algorithm}, Array size: {array_length}, Mean time: {mean_time}, Standard deviation: {std_dev_time}"
-            )
 
-
-def plot_algorithm_comparison():
+def plot_algorithm_comparison(name="sorting_time.csv"):
     times = {}
-    with open("sorting_time.csv", "r", encoding="utf-8") as f:
+    with open(name, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             name = row["Algorithm"]
             n = int(row["Array Size"])
             mean_time = float(row["Mean"])
             std_dev_time = float(row["Standard Deviation"])
+            n_repeats = int(row["Number of repeats"])
 
             if name not in times:
                 times[name] = {"sizes": [], "means": [], "std_devs": []}
             times[name]["sizes"].append(n)
             times[name]["means"].append(mean_time)
             times[name]["std_devs"].append(std_dev_time)
+            times[name]["n_repeats"] = n_repeats
 
     plt.figure(figsize=(12, 8))
 
@@ -201,20 +188,17 @@ def bubble_sort(data):
     return array
 
 
-def merge_sort(data):
+def merge_sort(array):
 
     # check if input data have more than one element
-    size = len(data)
-    if size > 1:
+
+    if len(array) > 1:
 
         # splitting part
         ############################
 
-        # copy the input data
-        array = data.copy()
-
         # find middle pint and divide the array into two halves
-        mid = size // 2
+        mid = len(array) // 2
         left_half = array[:mid]
         right_half = array[mid:]
 
@@ -240,6 +224,8 @@ def merge_sort(data):
                 array[k] = right_half[j]
                 j += 1
 
+            k += 1
+
         # one of the halves is empty, so place the remaining elements in the merged array
         while i < len(left_half):
             array[k] = left_half[i]
@@ -255,6 +241,33 @@ def merge_sort(data):
 
 
 if __name__ == "__main__":
-    # compare_algorithms(ALGORITHMS, ARRAY_SIZE)
+
+    # sorting algorithms test
+    test_array = [random.randint(-100, 100) for _ in range(10)]
+    correctly_sorted = sorted(test_array)
+
+    # selection sort
+    assert selection_sort(test_array) == correctly_sorted
+
+    # bubble sort
+    assert bubble_sort(test_array) == correctly_sorted
+
+    # merge sort
+    assert merge_sort(test_array) == correctly_sorted
+
+    sorting_algorithms = {
+        "Selection": "selection_sort(array.copy())",
+        "Bubble": "bubble_sort(array.copy())",
+        "Merge": "merge_sort(array.copy())",
+        "Sorted()": "sorted(array.copy())",
+    }
+
+    lengths = [100, 200, 500, 1_000, 2_000, 5_000, 10_000, 20_000, 50_000, 100_000]
+
+    prepare_csv_file()
+
+    for array_size in lengths:
+        array = [random.randint(-1000, 1000) for _ in range(array_size)]
+        compare_algorithms(sorting_algorithms, array, n_repeats=100)
+
     plot_algorithm_comparison()
-    plt.show()
