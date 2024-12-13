@@ -17,7 +17,7 @@ Expected time complexity of each sorting algorithm implemented:
 - **Bubble Sort**: O(n^2)
 - **Selection Sort**: O(n^2)
 - **Merge Sort**: O(n log n)
-- **Python Sorted()**: 
+- **Python Sorted()**: O(n log n)
 
 ## How to Run
 
