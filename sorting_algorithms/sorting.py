@@ -20,7 +20,17 @@ def calculate_time(func):
 
 
 # @calculate_time
-def selection_sort(data):
+def selection_sort(data: list[int]) -> list[int]:
+    """
+    Basic implementation of selection sort algorithm for sorting list / array of integers in ascending order.
+
+    Args:
+        data (list[int]): list / array of integers to be sorted
+
+    Returns:
+        list[int]: sorted list / array
+
+    """
 
     # copy the input data
     array = data.copy()
@@ -45,7 +55,17 @@ def selection_sort(data):
 
 
 # @calculate_time
-def bubble_sort(data):
+def bubble_sort(data: list[int]) -> list[int]:
+    """
+    Basic implementation of bubble sort algorithm for sorting list / array of integers in ascending order.
+
+    Args:
+        data (list[int]): list / array of integers to be sorted
+
+    Returns:
+        list[int]: sorted list / array
+
+    """
 
     # copy the input data
     array = data.copy()
@@ -81,7 +101,17 @@ def bubble_sort(data):
     return array
 
 
-def merge_sort(array):
+def merge_sort(array: list[int]) -> list[int]:
+    """
+    Implementation of merge sort algorithm for sorting list / array of integers in ascending order.
+
+    Args:
+        array (list[int]): list / array of integers to be sorted
+
+    Returns:
+        list[int]: sorted list / array
+
+    """
 
     # check if input data have more than one element
 

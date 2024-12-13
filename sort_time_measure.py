@@ -8,7 +8,23 @@ import csv
 import matplotlib.pyplot as plt
 
 
-def measure_time(algorithm, algorithm_stmt, array, n_repeats):
+def measure_time(
+    algorithm: str, algorithm_stmt: str, array: list[int], n_repeats: int
+) -> tuple[float, float]:
+    """
+    Function for measuring time of the algorithm.
+
+    Args:
+        algorithm (str): Name of the algorithm.
+        algorithm_stmt (str): Statement of the algorithm (algorithm code).
+        array (list[int]): Array to sort.
+        n_repeats (int): Number of test repeats.
+
+    Returns:
+        mean_time (float): Mean time of the algorithm.
+        std_dev_time (float): Standard deviation of the algorithm.
+
+    """
 
     repeat_times = timeit.repeat(
         stmt=algorithm_stmt, globals=globals(), number=1, repeat=n_repeats
@@ -17,19 +33,62 @@ def measure_time(algorithm, algorithm_stmt, array, n_repeats):
     mean_time = statistics.mean(repeat_times)
     std_dev_time = statistics.stdev(repeat_times)
 
-    with open("sorting_time.csv", "a", encoding="utf-8") as f:
-        row = [algorithm, len(array), mean_time, std_dev_time, n_repeats]
-        f.write(",".join(map(str, row)) + "\n")
+    _save_measured_time(
+        "sorting_time.csv", algorithm, len(array), mean_time, std_dev_time, n_repeats
+    )
 
     return mean_time, std_dev_time
 
 
+def _save_measured_time(
+    file_name: str,
+    algorithm: str,
+    array_size: int,
+    mean_time: float,
+    std_dev_time: float,
+    n_repeats: int,
+) -> None:
+    """
+    Save measured time to a CSV file.
+
+    Args:
+        file_name (str): Name of the CSV file.
+        algorithm (str): Name of the algorithm.
+        array_size (int): Size of the array.
+        mean_time (float): Mean time of the algorithm.
+        std_dev_time (float): Standard deviation of the algorithm.
+        n_repeats (int): Number of test repeats.
+
+    Returns:
+        None
+
+    """
+    if not file_name.endswith(".csv"):
+        file_name += ".csv"
+
+    with open(file_name, "a", encoding="utf-8") as f:
+        row = [algorithm, array_size, mean_time, std_dev_time, n_repeats]
+        f.write(",".join(map(str, row)) + "\n")
+
+
 def compare_algorithms(
-    algoritms,
-    array,
-    n_repeats=5,
-):
-    for algorithm, stmt in algoritms.items():
+    algorithms: dict[str, str],
+    array: list[int],
+    n_repeats: int = 100,
+) -> None:
+    """
+    Function for comparing selected algorithms.
+
+    Args:
+        algorithms (dict[str, str]): Dictionary with algorithm names and statements.
+        array (list[int]): Array to sort.
+        n_repeats (int): Number of test repeats.
+
+    Returns:
+        None
+
+    """
+    for algorithm, stmt in algorithms.items():
         mean_time, std_dev_time = measure_time(
             algorithm,
             stmt,
@@ -41,7 +100,17 @@ def compare_algorithms(
         )
 
 
-def prepare_csv_file(name="sorting_time.csv"):
+def prepare_csv_file(name: str = "sorting_time.csv") -> None:
+    """
+    Prepare CSV file for saving measured time. Write header to the file.
+
+    Args:
+        name (str): Name of the CSV file.
+
+    Returns:
+        None
+
+    """
     with open(name, "w", encoding="utf-8") as f:
         header = [
             "Algorithm",
@@ -53,7 +122,17 @@ def prepare_csv_file(name="sorting_time.csv"):
         f.write(",".join(header) + "\n")
 
 
-def plot_algorithm_comparison(name="sorting_time.csv"):
+def plot_algorithm_comparison(name: str = "sorting_time.csv") -> None:
+    """
+    Function for plotting the comparison of sorting algorithms. Reads data from the CSV file. Saves the plot as a PNG file.
+
+    Args:
+        name (str): Name of the CSV file.
+
+    Returns:
+        None
+    """
+
     times = {}
     with open(name, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
