@@ -1,19 +1,27 @@
 """
 Time measuring of sorting algorithms
+
+Size of lists and number of repeats are lowered for testing purposes
+
 """
 
-# sorting algorithms test - correct results
+import random
 
-from sorting_algorithms import sorting
+import sort_time_measure as tm
 
-data = [-2, 45, 0, 11, -9]
-array = [6, 5, 12, 10, 9, 1]
+sorting_algorithms = {
+    "Selection": "sorting.selection_sort(array.copy())",
+    "Bubble": "sorting.bubble_sort(array.copy())",
+    "Merge": "sorting.merge_sort(array.copy())",
+    "Sorted()": "sorted(array.copy())",
+}
 
-assert sorting.selection_sort(data) == [-9, -2, 0, 11, 45]
-assert sorting.bubble_sort(data) == [-9, -2, 0, 11, 45]
+lengths = [100, 200, 500, 1_000]
 
-print(sorting.merge_sort(array))
+tm.prepare_csv_file()
 
-assert sorting.merge_sort(array) == [1, 5, 6, 9, 10, 12]
+for array_size in lengths:
+    array = [random.randint(-1000, 1000) for _ in range(array_size)]
+    tm.compare_algorithms(sorting_algorithms, array, n_repeats=2)
 
-print("Sorting algorithms test passed")
+tm.plot_algorithm_comparison()
