@@ -2,8 +2,10 @@ import random
 import timeit
 import time
 import statistics
-import matplotlib.pyplot as plt
 import csv
+
+# optional for plotting (figures already included)
+import matplotlib.pyplot as plt
 
 
 def measure_time(algorithm, algorithm_stmt, array, n_repeats):
@@ -108,8 +110,6 @@ def plot_algorithm_comparison(name="sorting_time.csv"):
 """
 Sorting algorithms
 """
-
-import time
 
 
 # decorator for time measuring
