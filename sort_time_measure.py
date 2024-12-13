@@ -27,16 +27,24 @@ def measure_time(
 
     """
 
+    # Copy globals and add array to the local globals, this helps/ fixes issue where timeit cannot access the array
     local_globals = globals().copy()
     local_globals["array"] = array
 
+    # Measure time using timeit.repeat function
+    # stmt sets the statement (code) to be measured
+    # globals sets the global variables for the code
+    # number sets the number of executions of the code - imitate loop
+    # repeat sets the number of repeats - repeat should act like the previous run of code didn't happen
     repeat_times = timeit.repeat(
         stmt=algorithm_stmt, globals=local_globals, number=1, repeat=n_repeats
     )
 
+    # Simple statistic calculation
     mean_time = statistics.mean(repeat_times)
     std_dev_time = statistics.stdev(repeat_times)
 
+    # Call private function to save measured time to a CSV file
     _save_measured_time(
         "sorting_time.csv", algorithm, len(array), mean_time, std_dev_time, n_repeats
     )
@@ -67,9 +75,11 @@ def _save_measured_time(
         None
 
     """
+    # Check if the file name has the correct extension
     if not file_name.endswith(".csv"):
         file_name += ".csv"
 
+    # Write the data to the CSV file
     with open(file_name, "a", encoding="utf-8") as f:
         row = [algorithm, array_size, mean_time, std_dev_time, n_repeats]
         f.write(",".join(map(str, row)) + "\n")
@@ -92,6 +102,7 @@ def compare_algorithms(
         None
 
     """
+    # Loop through the algorithms and measure the time
     for algorithm, stmt in algorithms.items():
         mean_time, std_dev_time = measure_time(
             algorithm,
@@ -115,6 +126,11 @@ def prepare_csv_file(name: str = "sorting_time.csv") -> None:
         None
 
     """
+    # Check if the file name has the correct extension
+    if not name.endswith(".csv"):
+        name += ".csv"
+
+    # Write the header to the CSV file
     with open(name, "w", encoding="utf-8") as f:
         header = [
             "Algorithm",
@@ -126,7 +142,7 @@ def prepare_csv_file(name: str = "sorting_time.csv") -> None:
         f.write(",".join(header) + "\n")
 
 
-def plot_algorithm_comparison(name: str = "sorting_time.csv") -> None:
+def plot_algorithm_comparison(file_name: str = "sorting_time.csv") -> None:
     """
     Function for plotting the comparison of sorting algorithms. Reads data from the CSV file. Saves the plot as a PNG file.
 
@@ -136,36 +152,57 @@ def plot_algorithm_comparison(name: str = "sorting_time.csv") -> None:
     Returns:
         None
     """
-
+    # prepare dictionary for storing data
     times = {}
-    with open(name, "r", encoding="utf-8") as f:
+
+    # Read data from the CSV file
+    with open(file_name, "r", encoding="utf-8") as f:
+        # Reader object in form of dictionary (header as keys)
         reader = csv.DictReader(f)
         for row in reader:
+            # Extract data from the row
             name = row["Algorithm"]
             n = int(row["Array Size"])
             mean_time = float(row["Mean"])
             std_dev_time = float(row["Standard Deviation"])
             n_repeats = int(row["Number of repeats"])
 
+            # Check if the algorithm is already in the dictionary
             if name not in times:
-                times[name] = {"sizes": [], "means": [], "std_devs": []}
+                times[name] = {
+                    "sizes": [],
+                    "means": [],
+                    "std_devs": [],
+                    "n_repeats": [],
+                }
+
+            # Append data to the dictionary
             times[name]["sizes"].append(n)
             times[name]["means"].append(mean_time)
             times[name]["std_devs"].append(std_dev_time)
             times[name]["n_repeats"] = n_repeats
 
+    # Initialize the plot
     plt.figure(figsize=(12, 8))
 
+    # Loop through the data for each algorithm and plot the results
     for name, data in times.items():
         sizes = data["sizes"]
         means = data["means"]
         std_devs = data["std_devs"]
+
+        # Calculate lower and upper bounds given by mean +- std_dev
+        # Used list comprehension, where zip function is used to iterate over multiple lists at the same time (create pairs of values - tuples)
         lower_bound = [mean - std_dev for mean, std_dev in zip(means, std_devs)]
         upper_bound = [mean + std_dev for mean, std_dev in zip(means, std_devs)]
 
+        # Plot mean line and get mean_line object
         (mean_line,) = plt.plot(sizes, means, label=f"{name} (mean)")
+
+        # Get color of the mean line
         color = mean_line.get_color()
 
+        # Plot lower and upper bounds as dashed lines of same color as mean line
         plt.plot(
             sizes,
             lower_bound,
@@ -181,6 +218,7 @@ def plot_algorithm_comparison(name: str = "sorting_time.csv") -> None:
             label=f"{name} (mean + std_dev)",
         )
 
+    # plot settings
     plt.xlabel("Array Size")
     plt.ylabel("Time [seconds]")
     plt.title("Sorting Algorithm Performance")
